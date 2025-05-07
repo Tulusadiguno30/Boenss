@@ -97,7 +97,7 @@
 
       <li class="nav-item">
         <a class="nav-link " href="index.php">
-        <i class="bi bi-shop"></i>
+        <i class="bi bi-grid"></i>
           <span>Beranda</span>
         </a>
       </li><!-- End Dashboard Nav -->
@@ -214,9 +214,7 @@
                       <i class="bi bi-currency-dollar"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>Rp.36200
-                      
-
+                      <h6>Rp.32.264</h6> 
                     </div>
                   </div>
                 </div>

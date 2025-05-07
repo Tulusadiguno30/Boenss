@@ -218,11 +218,11 @@
                       $no = 1;
 
                       $query = isset($_POST['query']) ? mysqli_real_escape_string($koneksi, $_POST['query']) : '';
-                      $sql_query = "SELECT id_kategori, nm_kategori 
+                      $sql_query = "SELECT id_ktg, nm_ktg 
                       FROM tb_kategori";
 
                       if (!empty($query)) {
-                          $sql_query .= " WHERE nm_kategori LIKE 
+                          $sql_query .= " WHERE nm_ktg LIKE 
                           '%$query%'";
                       }
 
