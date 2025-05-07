@@ -97,7 +97,7 @@
 
       <li class="nav-item">
         <a class="nav-link " href="index.php">
-          <i class="bi bi-grid"></i>
+        <i class="bi bi-shop"></i>
           <span>Beranda</span>
         </a>
       </li><!-- End Dashboard Nav -->
@@ -125,14 +125,14 @@
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="transaksi.php">
-        <i class="bi bi-cash"></i>
+        <i class="bi bi-piggy-bank"></i>
           <span>Transaksi</span>
         </a>
       </li><!-- End transaksi Page Nav -->
 
       <li class="nav-item">
         <a class="nav-link collapsed" href="laporan.php">
-        <i class="bi bi-envelope"></i>
+        <i class="bi bi-envelope-plus-fill"></i>
           <span>Laporan</span>
         </a>
       </li><!-- End Laporan Page Nav -->
