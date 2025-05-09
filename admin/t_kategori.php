@@ -2,16 +2,16 @@
 <?php
 include 'koneksi.php';
 if (isset($_POST['simpan'])) {
-    $auto = mysqli_query($koneksi, "select max(id_kategori) as max_code from tb_kategori");
+    $auto = mysqli_query($koneksi, "select max(id_ktg) as max_code from tb_kategori");
     $hasil = mysqli_fetch_array($auto);
     $code = $hasil['max_code'];
     $urutan = (int) substr($code, 1, 3);
     $urutan++;
     $huruf = "K";
-    $id_kategori = $huruf . sprintf("%03s", $urutan);
-    $nm_kategori = $_POST['nm_kategori'];
+    $id_ktg = $huruf . sprintf("%03s", $urutan);
+    $nm_ktg = $_POST['nm_ktg'];
 
-    $query = mysqli_query($koneksi, "insert into tb_kategori(id_kategori, nm_kategori) values ('$id_kategori','$nm_kategori')");
+    $query = mysqli_query($koneksi, "insert into tb_kategori(id_ktg, nm_ktg) values ('$id_ktg','$nm_ktg')");
         if ($query) {
             echo "<script>alert('Data Berhasil Disimpan')</script>";
             header("refresh:0; kategori.php");
@@ -188,9 +188,9 @@ if (isset($_POST['simpan'])) {
               <!-- Vertical Form -->
               <form class="row g-3 mt-2" method="post">
                 <div class="col-12">
-                  <label for="nm_kategori" 
+                  <label for="nm_ktg" 
                   class="form-label">Nama Kategori</label>
-                  <input type="text" class="form-control" name="nm_kategori" id="nm_kategori" placeholder="Masukkan Nama Kategori Produk">
+                  <input type="text" class="form-control" name="nm_ktg" id="nm_ktg" placeholder="Masukkan Nama Kategori Produk">
                 </div>
                 <div class="text-center">
                   <button type="reset" class="btn btn-secondary">Reset</button>

@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>beranda-boenss.id</title>
+  <title>beranda- boenss admin  </title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -44,7 +44,7 @@
   <header id="header" class="header fixed-top d-flex align-items-center">
 
     <div class="d-flex align-items-center justify-content-between">
-      <a href="index.php" class="logo d-flex align-items-center">
+      <a href="index.html" class="logo d-flex align-items-center">
         <img src="assets/img/logo.png" alt="">
         <span class="d-none d-lg-block">boenss</span>
       </a>
@@ -52,9 +52,8 @@
     </div><!-- End Logo -->
 
     <div class="search-bar">
-      <form class="search-form d-flex align-items-center" method="POST" action="">
-        <input type="text" name="query" placeholder="Search" title="Enter search keyword" 
-        value="<?php echo isset($_POST ['query']) ? htmlspecialchars($_P0ST['query']) : ''; ?>">
+    <form class="search-form d-flex align-items-center" method="GET" action="kategori.php">
+        <input type="text" name="query" placeholder="Search" title="Enter search keyword">
         <button type="submit" title="Search"><i class="bi bi-search"></i></button>
       </form>
     </div><!-- End Search Bar -->
@@ -68,45 +67,11 @@
           </a>
         </li><!-- End Search Icon-->
 
-        
-        <li class="nav-item dropdown pe-3">
+        <li class="nav-item dropdown">
 
-        <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="assets/img/patrik.jpg" alt="Profile" class="rounded-circle">
-          </a><!-- End Profile Iamge Icon -->
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown">
+          </a><!-- End Notification Icon -->
 
-          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-            <li class="dropdown-header">
-              <h6>tulus</h6>
-              <span>Admin</span>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="users-profile.html">
-                <i class="bi bi-person"></i>
-                <span>My Profile</span>
-              </a>
-            </li>
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            
-            <li>
-              <hr class="dropdown-divider">
-            </li>
-
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="#">
-                <i class="bi bi-box-arrow-right"></i>
-                <span>Sign Out</span>
-              </a>
-            </li>
-
-          </ul><!-- End Profile Dropdown Items -->
         </li><!-- End Profile Nav -->
 
       </ul>
@@ -121,7 +86,7 @@
 
       <li class="nav-item">
         <a class="nav-link " href="index.php">
-        <i class="bi bi-shop"></i>
+        <i class="bi bi-grid"></i>
           <span>Beranda</span>
         </a>
       </li><!-- End Dashboard Nav -->
@@ -172,106 +137,94 @@
 
   </aside><!-- End Sidebar-->
 
-
   <main id="main" class="main">
 
     <div class="pagetitle">
       <h1>kategori produk</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.php">Beranda</a></li>
+          <li class="breadcrumb-item"><a href="index.php">beranda</a></li>
           <li class="breadcrumb-item active">kategori produk</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
-
-    <div  class="row">
-        <div class="col-lg-12">
-          <div class="card">
-            <div class="card-body">
-                <a href="t_kategori.php" class="btn btn-primary mt-3">
-                    <i class="bi bi-plus-lg"></i> tambah data 
-                </a>
+    <div class="row">
+      <div class="col-lg-12">
+       <div class="card">
+        <div class="card-body">
+            <a href="t_kategori.php" class="btn btn-primary mt-3">
+            <i class="bi bi-plus-lg"></i> Tambah Data
+            </a>
             </div>
           </div>
         </div>
-    </div>
-          
+      </div>
+
     <section class="section">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="card">
-                <div class="card-body">
+       <div class="row">
+          <div class="col-lg-12">
+          <div class="card">
+            <div class="card-body">
+              <!-- Table with stripped rows -->
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th scope="col">NO</th>
+                    <th scope="col">NAMA KATEGORI</th>
+                    <th scope="col">AKSI</th>
+                  </tr>
+                </thead>
+                <tbody>
+                <?php
 
-                  <!-- Table with stripped rows -->
-                  <table class="table table-striped mt-2"> 
-                    <thead>
-                      <tr>
-                        <th scope="col">No</th>
-                        <th scope="col">Nama Kategori</th>
-                        <th scope="col">Aksi</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      include 'koneksi.php';
-                      $no = 1;
+                 include "koneksi.php";
+                 $no = 1;
 
-                      $query = isset($_POST['query']) ? mysqli_real_escape_string($koneksi, $_POST['query']) : '';
-                      $sql_query = "SELECT id_ktg, nm_ktg 
-                      FROM tb_kategori";
+                 // Ambil keyword pencarian dari GET
+                 $query = isset($_GET['query']) ? mysqli_real_escape_string($koneksi, $_GET['query']) : '';
+                 // query dasar
+                 $sql_query = "SELECT id_ktg, nm_ktg FROM tb_kategori";
+                 // jika ada pencarian,tambahkan kondisi WHERE
+                 if (!empty($query)) {
+                    $sql_query .= " WHERE nm_ktg LIKE '%$query%'";
 
-                      if (!empty($query)) {
-                          $sql_query .= " WHERE nm_ktg LIKE 
-                          '%$query%'";
-                      }
+                 }
 
-                      $sql = mysqli_query($koneksi, $sql_query);
+                 $sql = mysqli_query($koneksi, $sql_query);
 
-                        if (mysqli_num_rows($sql) > 0) {
-                          while ($hasil = mysqli_fetch_array($sql)) {
-                      ?>
+                 if (mysqli_num_rows ($sql) > 0) {
+                    while ($hasil = mysqli_fetch_array($sql)) {
+                 ?>
                           <tr>
-                              <td><?php echo $no++; ?></td>
-                              <td><?php echo $hasil
-                              ['nm_kategori']; ?></td>
-                              <td>
-                                  <a href="e_kategori.php?id=<?php echo $hasil
-                                  ["id_kategori"]; ?>"
-                                  class="btn btn-warning">
-                                <i class="bi bi-pencil-square"> </i>
+                            <td><?php echo $no++; ?></td>
+                            <td><?php echo $hasil['nm_ktg']; ?></td>
+                            <td>
+                                <a href="e_kategori.php?id=<?php echo $hasil['id_ktg']; ?>"class="btn btn-warning">
+                                    <i class="bi bi-pencil-square"></i>
                                   </a>
-                                </a>
-                                <a href="h_kategori.php?id=<?php echo $hasil
-                                ["id_kategori"]; ?>"
-                                  class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
-                                  <i class="bi bi-trash"></i>
-                                </a>
-                              </td>
-                          </tr>
-                      <?php
-                          }
-                      } else {
-                          ?>
-                          <tr>
-                              <td colspan="3" class="text-center">Belum Ada Data</td>
-                      
-                          </tr>
-                      <?php
-                      }
-                      ?>
-                    </tbody>
-                  </table>
-                  <!-- End Table with stripped rows -->
-
-                </div>
-              </div>
-        </section>
+                                  <a href="h_kategori.php?id=<?php echo $hasil['id_ktg']; ?>"class="btn btn-danger" onclick="return confirm('apakah anda yakin ingin menghapus data?')">
+                                    <i class="bi bi-trash"></i>
+                              </a>
+                        </td>
+                       </tr>
+                     <?php
+                    }
+                } else {
+                    ?>
+                    <tr>
+                        <td colspan="3" class="text-center"> Data tidak ditemukan</td>
+                     </tr>
+                   <?php
+                }
+                ?>     
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
 
   </main><!-- End #main -->
 
- <!-- ======= Footer ======= -->
- <footer id="footer" class="footer">
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
     <div class="copyright">
       &copy; Copyright <strong><span>boenss</span></strong>. All Rights Reserved
     </div>
@@ -280,7 +233,7 @@
       <!-- You can delete the links only if you purchased the pro version. -->
       <!-- Licensing information: https://bootstrapmade.com/license/ -->
       <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://www.instagram.com/tuluss_adigunoo?igsh=MWw4NWN4ZHdjd2lwMQ==/" target ="_blank">Tulus adiguno</a>
+      Designed by <a href="https://www.instagram.com/tuluss_adigunoo?igsh=MWw4NWN4ZHdjd2lwMQ==">Tulus adiguno</a>
     </div>
   </footer><!-- End Footer -->
 
