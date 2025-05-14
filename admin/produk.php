@@ -268,7 +268,7 @@
             &copy; Copyright <strong><span>Nama Website</span></strong>. All Rights Reserved
         </div>
         <div class="credits">
-            Designed by <a href="https://instagram.com/namaig/">Nama Anda</a>
+            Designed by <a href="https://www.instagram.com/tuluss_adigunoo?igsh=MWw4NWN4ZHdjd2lwMQ==">Tulus adiguno</a>
         </div>
     </footer><!-- End Footer -->
 

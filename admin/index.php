@@ -144,7 +144,6 @@
         </a>
       </li><!-- End pengguna Page Nav -->
 
-    </ul>
 
   </aside><!-- End Sidebar-->
 
