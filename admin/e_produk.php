@@ -1,67 +1,4 @@
-<?php
-session_start();
-include "koneksi.php";
 
-// Cek apakah sudah login
-if (!isset($_SESSION["login"])) {
-    header("Location: login.php");
-    exit;
-}
-
-// Cek apakah status tersedia dan pastikan user adalah admin
-if (!isset($_SESSION["status"]) || $_SESSION["status"] !== "admin") {
-    echo "<script>
-    alert('Akses ditolak! Halaman ini hanya untuk Admin.');
-    window.location.href='login.php';
-  </script>";
-    exit;
-}
-
-// Mendapatkan kode produk otomatis
-$auto = mysqli_query($koneksi, "SELECT MAX(id_produk) AS max_code FROM tb_produk");
-$hasil = mysqli_fetch_array($auto);
-$code = $hasil['max_code'];
-$urutan = (int)substr($code, 1, 3);
-$urutan++;
-$huruf = "P";
-$id_produk = $huruf . sprintf("%03s", $urutan);
-
-if (isset($_POST['simpan'])) {
-    $nm_produk = $_POST['nm_produk'];
-    $harga = $_POST['harga'];
-    $stok = $_POST['stok'];
-    $desk = $_POST['desk'];
-    $id_kategori = $_POST['id_kategori'];
-
-    // Upload Gambar
-    $imgfile = $_FILES['gambar']['name'];
-    $tmp_file = $_FILES['gambar']['tmp_name'];
-    $extension = strtolower(pathinfo($imgfile, PATHINFO_EXTENSION));
-
-    $dir = "produk_img/"; // Direktori penyimpanan gambar
-   $allowed_extensions = array("jpg", "jpeg", "png", "webp");
-
-    if (!in_array($extension, $allowed_extensions)) {
-        echo "<script>alert('Format tidak valid. Hanya jpg, jpeg, png, dan webp yang diperbolehkan.');</script>";
-    } else {
-        // Rename file gambar agar unik
-        $imgnewfile = md5(time() . $imgfile) . "." . $extension;
-        move_uploaded_file($tmp_file, $dir . $imgnewfile);
-
-        // Simpan data ke database
-        $query = mysqli_query($koneksi, "INSERT INTO tb_produk (id_produk, nm_produk, harga, stok, desk, id_kategori, gambar) 
-                                         VALUES ('$id_produk', '$nm_produk', '$harga', '$stok', '$desk', '$id_kategori', '$gamb')");
-
-        if ($query) {
-            echo "<script>alert('Produk berhasil ditambahkan!');</script>";
-            header("refresh:0, produk.php");
-        } else {
-            echo "<script>alert('Gagal menambahkan produk!');</script>";
-            header("refresh:0, produk.php");
-        }
-    }
-}
-?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -69,7 +6,7 @@ if (isset($_POST['simpan'])) {
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>produk - boenss Admin</title>
+    <title>Produk - boenss Admin</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -106,13 +43,12 @@ if (isset($_POST['simpan'])) {
             </a>
             <i class="bi bi-list toggle-sidebar-btn"></i>
         </div><!-- End Logo -->
-
         <nav class="header-nav ms-auto">
             <ul class="d-flex align-items-center">
                 <li class="nav-item dropdown pe-3">
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                         <img src="assets/img/patrik.jpg" alt="Profile" class="rounded-circle">
+                        <img src="assets/img/user.jpg" alt="Profile" class="rounded-circle">
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
@@ -135,61 +71,59 @@ if (isset($_POST['simpan'])) {
 
     </header><!-- End Header -->
 
-    
-  <!-- ======= Sidebar ======= -->
-  <aside id="sidebar" class="sidebar">
+    <!-- ======= Sidebar ======= -->
+    <aside id="sidebar" class="sidebar">
 
-    <ul class="sidebar-nav" id="sidebar-nav">
+        <ul class="sidebar-nav" id="sidebar-nav">
 
-      <li class="nav-item">
-        <a class="nav-link " href="index.php">
-        <i class="bi bi-grid"></i>
-          <span>Beranda</span>
-        </a>
-      </li><!-- End Dashboard Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="index.php">
+                    <i class="bi bi-house-door"></i>
+                    <span>Beranda</span>
+                </a>
+            </li><!-- End Beranda Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="kategori.php">
-        <i class="bi bi-app-indicator"></i>
-          <span>Kategori produk</span>
-        </a>
-      </li><!-- End kategori Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="kategori.php">
+                    <i class="bi bi-tags"></i>
+                    <span>Kategori Produk</span>
+                </a>
+            </li><!-- End Kategori Produk Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="produk.php">
-        <i class="bi bi-bag-fill"></i>
-          <span>Produk</span>
-        </a>
-      </li><!-- End produk Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link" href="produk.php">
+                    <i class="bi bi-shop"></i>
+                    <span>Produk</span>
+                </a>
+            </li><!-- End Produk Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="keranjang.php">
-        <i class="bi bi-cart-check"></i>
-          <span>Keranjang</span>
-        </a>
-      </li><!-- End keranjang Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="keranjang.php">
+                    <i class="bi bi-cart"></i>
+                    <span>Keranjang</span>
+                </a>
+            </li><!-- End Keranjang Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="transaksi.php">
-        <i class="bi bi-piggy-bank"></i>
-          <span>Transaksi</span>
-        </a>
-      </li><!-- End transaksi Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="transaksi.php">
+                    <i class="bi bi-receipt"></i>
+                    <span>Transaksi</span>
+                </a>
+            </li><!-- End Transaksi Page Nav -->
 
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="laporan.php">
-        <i class="bi bi-envelope-plus-fill"></i>
-          <span>Laporan</span>
-        </a>
-      </li><!-- End Laporan Page Nav -->
-
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="pengguna.php">
-        <i class="bi bi-person-add"></i>
-          <span>Pengguna</span>
-        </a>
-      </li><!-- End pengguna Page Nav -->
-
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="laporan.php">
+                    <i class="bi bi-file-earmark-bar-graph"></i>
+                    <span>Laporan</span>
+                </a>
+            </li><!-- End Laporan Page Nav -->
+            <li class="nav-item">
+                <a class="nav-link collapsed" href="pengguna.php">
+                    <i class="bi bi-people"></i>
+                    <span>Pengguna</span>
+                </a>
+            </li><!-- End Pengguna Page Nav -->
+        </ul>
 
     </aside><!-- End Sidebar-->
 
@@ -201,7 +135,7 @@ if (isset($_POST['simpan'])) {
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="index.php">Beranda</a></li>
                     <li class="breadcrumb-item">Produk</li>
-                    <li class="breadcrumb-item active">Tambah</li>
+                    <li class="breadcrumb-item active">Edit</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
@@ -212,31 +146,32 @@ if (isset($_POST['simpan'])) {
                     <div class="card">
                         <div class="card-body">
                             <form class="row g-3 mt-2" method="post" enctype="multipart/form-data">
+                                <input type="hidden" name="gambar_lama" value="<?php echo $data['gambar']; ?>">
                                 <div class="col-12">
                                     <label for="nm_produk" class="form-label">Nama Produk</label>
-                                    <input type="text" class="form-control" id="nm_produk" name="nm_produk" placeholder="Masukkan Nama Produk" required>
+                                    <input type="text" class="form-control" id="nm_produk" name="nm_produk" value="<?php echo $data['nm_produk']; ?>" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="harga" class="form-label">Harga</label>
-                                    <input type="number" class="form-control" id="harga" name="harga" placeholder="Masukkan Harga Produk" required>
+                                    <input type="number" class="form-control" id="harga" name="harga" value="<?php echo $data['harga']; ?>" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="stok" class="form-label">Stok</label>
-                                    <input type="number" class="form-control" id="stok" name="stok" placeholder="Masukkan Stok Produk" required>
+                                    <input type="number" class="form-control" id="stok" name="stok" value="<?php echo $data['stok']; ?>" required>
                                 </div>
                                 <div class="col-12">
                                     <label for="desk" class="form-label">Deskripsi</label>
-                                    <textarea class="form-control" id="desk" name="desk" placeholder="Masukkan Deskripsi Produk" required></textarea>
+                                    <textarea class="form-control" id="desk" name="desk" required><?php echo $data['desk']; ?></textarea>
                                 </div>
                                 <div class="col-12">
                                     <label for="id_kategori" class="form-label">Kategori</label>
                                     <select class="form-control" id="id_kategori" name="id_kategori" required>
                                         <option value="">-- Pilih Kategori --</option>
                                         <?php
-                                        include "koneksi.php";
-                                        $query = mysqli_query($koneksi, "SELECT * FROM tb_kategori");
-                                        while ($kategori = mysqli_fetch_array($query)) {
-                                            echo "<option value='{$kategori['id_kategori']}'>{$kategori['nm_kategori']}</option>";
+                                        $query_kategori = mysqli_query($koneksi, "SELECT * FROM tb_kategori");
+                                        while ($kategori = mysqli_fetch_array($query_kategori)) {
+                                            $selected = ($kategori['id_kategori'] == $data['id_kategori']) ? 'selected' : '';
+                                            echo "<option value='{$kategori['id_kategori']}' $selected>{$kategori['nm_kategori']}</option>";
                                         }
                                         ?>
                                     </select>
@@ -244,10 +179,14 @@ if (isset($_POST['simpan'])) {
                                 <div class="col-12">
                                     <label for="gambar" class="form-label">Gambar Produk</label>
                                     <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
+                                    <br>
+                                    <?php if ($data['gambar']) { ?>
+                                        <img src="produk_img/<?php echo $data['gambar']; ?>" width="150">
+                                    <?php } ?>
                                 </div>
                                 <div class="text-center">
-                                    <button type="reset" class="btn btn-secondary">Reset</button>
-                                    <button type="submit" class="btn btn-primary" name="simpan">Simpan</button>
+                                    <button type="submit" class="btn btn-primary" name="update">Update</button>
+                                    <a href="produk.php" class="btn btn-secondary">Kembali</a>
                                 </div>
                             </form>
                         </div>
