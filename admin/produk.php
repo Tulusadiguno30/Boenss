@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -64,12 +63,11 @@
 
                     <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
                         <img src="assets/img/patrik.jpg" alt="Profile" class="rounded-circle">
-                        <!-- profile-img.jpg diganti dengan foto kalian -->
                     </a><!-- End Profile Iamge Icon -->
 
                     <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                         <li class="dropdown-header">
-                            <h6>Tulus</h6>
+                            <h6>tulus</h6>
                             <span>Admin</span>
                         </li>
                         <li>
@@ -94,7 +92,7 @@
 
     </header><!-- End Header -->
 
-  <!-- ======= Sidebar ======= -->
+ <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -148,7 +146,9 @@
         </a>
       </li><!-- End pengguna Page Nav -->
 
-    </aside><!-- End Sidebar-->
+
+  </aside><!-- End Sidebar-->
+
 
     <main id="main" class="main">
 
@@ -190,68 +190,65 @@
                                         <th scope="col">Nama Produk</th>
                                         <th scope="col">Harga</th>
                                         <th scope="col">Stok</th>
-                                        <th scope="col">Nama Kategori</th>
+                                        <th scope="col">Deskripsi</th>
+                                        <th scope="col">Kategori</th>
                                         <th scope="col">Gambar</th>
-                                        <th scope="col">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  <?php
+                                    <?php
+                                    include "koneksi.php";
+                                    $no = 1;
+                                    
+                                    // Ambil keyword penacarian dari GET
+                                    $query = isset($_GET['query']) ? mysqli_real_escape_string($koneksi, $_GET['query']) : '';
 
-                                  include "koneksi.php";
-                                  $no = 1;
+                                    // Tambahkan Where jika query tidak kosong
+                                    $sql_query = "SELECT tb_produk.*, tb_kategori.nm_ktg FROM tb_produk LEFT JOIN tb_kategori ON tb_produk.id_ktg = tb_kategori.id_ktg";
 
-                                  // Ambil keyword pencarian dari GET
-                                  $query = isset($_GET['query']) ? mysqli_real_escape_string($koneksi, $_GET['query']) : '';
+                                    if (!empty($query)) {
+                                        $sql_query .= " WHERE tb_produk.nm_produk LIKE '%$query%' OR tb_kategori.nm_ktg LIKE '%$query%' OR tb_produk.desk LIKE '%$query%'";
+                                    }
 
-                                 // Tambahkan WHERE jika query tidak kosong
-                                 $sql_query = "SELECT tb_produk.*, tb_kategori.nm_ktg FROM tb_produk LEFT JOIN tb_kategori ON tb_produk.id_kategori =tb_kategori.id_ktg";
+                                    $sql = mysqli_query($koneksi, $sql_query);
 
-                                 if (!empty($query)) {
-                                 $sql_query .= " WHERE tb_produk.nm_produk LIKE '%$query%' OR tb_kategori.nm_ktg LIKE '%$query%' OR tb_produk.desk LIKE '%$query%'"; 
-
-                                   }
-
-                                $sql = mysqli_query($koneksi, $sql_query);
-
-                                 if (mysqli_num_rows($sql) > 0) {
-                                 while ($hasil = mysqli_fetch_array($sql)) {
-                                 ?>
-                                      <tr>
-                                         <td><?php echo $no++; ?></td>
-                                         <td><?php echo $hasil['nm_produk']; ?></td>
-                                         <td>Rp <?php echo number_format($hasil['harga'], 0, ',', '.'); ?></td>
-                                         <td><?php echo $hasil['stok']; ?></td>
-                                         <td><?php echo $hasil['desk']; ?></td>
-                                         <td><?php echo $hasil['nm_kategori']; ?></td>
-
-                                         <td>
-
-                                            <?php if (!empty($hasil['gambar'])) { ?>
-                                                <img src="produk_img/<?php echo $hasil['gambar']; ?>" width="100">
-                                            <?php } else { ?>
-                                                Tidak ada gambar
-                                            <?php } ?>
-                                         </td>
-                                         <td>
-                                            <a href="e_produk.php?id=<?php echo $hasil['id_produk']; ?>" class = "btn btn-warning">
-                                                 <i class="bi bi-pencil-square"></i.>
-                                            </a>
-                                            <a href="h_produk.php?id=<?php echo $hasil['id_produk']; ?>" class = "btn btn-danger" onclick="return confirm('apakah anda yakin menghapus data?')">
-                                                 <i class="bi bi-trash"></i>
-                                            </a>  
-                                         </td>
-                                     </tr>
-                                  <?php
-                                  }
-                               }else {
-                               ?>
-                               <tr>
-                                   <td colspan="8" class="text-center">data tidak ditemukan</td>
-                               </tr>
-                             <?php
-                             }
-                             ?>     
+                                    if (mysqli_num_rows($sql) > 0) {
+                                        while ($hasil = mysqli_fetch_array($sql)) {
+                                    ?>
+                                            <tr>
+                                                <td><?php echo $no++; ?></td>
+                                                <td><?php echo $hasil['nm_produk']; ?></td>
+                                                <td>Rp <?php echo number_format($hasil['harga'], 0, ',', '.'); ?></td>
+                                                <td><?php echo $hasil['stok']; ?></td>
+                                                <td><?php echo $hasil['desk']; ?></td>
+                                                <td><?php echo $hasil['nm_ktg']; ?></td>
+                                                <td>
+                                                    <?php if (!empty($hasil['gambar'])) { ?>
+                                                        <img src="produk_img/<?php echo $hasil['gambar']; ?>" width="100">
+                                                    <?php } else { ?>
+                                                        Tidak ada gambar
+                                                    <?php } ?>
+                                                </td>
+                                                <td>
+                                                    <a href="e_produk.php?id=<?php echo $hasil['id_produk']; ?>" class="btn btn-warning">
+                                                        <i class="bi bi-pencil-square"></i>
+                                                    </a>
+                                                    <a href="h_produk.php?id=<?php echo $hasil['id_produk']; ?>" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus data?')">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        <?php
+                                        }
+                                    } else {
+                                        ?>
+                                        <tr>
+                                            <td colspan="8" class="text-center">Tidak ada data ditemukan</td>
+                                        </tr>
+                                    <?php
+                                    }
+                                    ?>
+                                                        
                                 </tbody>
                             </table>
                             <!-- End Table with stripped rows -->
@@ -267,10 +264,10 @@
     <!-- ======= Footer ======= -->
     <footer id="footer" class="footer">
         <div class="copyright">
-            &copy; Copyright <strong><span>Nama Website</span></strong>. All Rights Reserved
+            &copy; Copyright <strong><span>boenss</span></strong>. All Rights Reserved
         </div>
         <div class="credits">
-            Designed by <a href="https://www.instagram.com/tuluss_adigunoo?igsh=MWw4NWN4ZHdjd2lwMQ==">Tulus adiguno</a>
+            Designed by <a href="https://www.instagram.com/tuluss_adigunoo?igsh=MWw4NWN4ZHdjd2lwMQ==">tulus adiguno</a>
         </div>
     </footer><!-- End Footer -->
 
