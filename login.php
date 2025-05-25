@@ -1,35 +1,30 @@
 <?php
 session_start();
+
 require "admin/koneksi.php";
 
 if (isset($_POST["login"])) {
-  $username = $_POST["username"];
-  $password = $_POST["password"];
+    $username = $_POST["username"];
+    $password = $_POST["password"];
 
-  // Cek apakah username ditemukan
-  $result = mysqli_query($koneksi, "SELECT * FROM tb_user WHERE username='$username'");
+    $result = mysqli_query($koneksi, "SELECT * FROM tb_user WHERE username='$username'");
 
-  if (mysqli_num_rows($result) === 1) {
-    $row = mysqli_fetch_assoc($result);
-
-    // Cek password
-    if (password_verify($password, $row["password"])) {
-      // Cek apakah status user adalah admin
-      if ($row["status"] === "admin") {
-        $_SESSION["login"] = true;
-        $_SESSION["username"] = $row["username"];
-        $_SESSION["status"] = $row["status"];
-        header("Location: index.php");
-        exit;
-      } else {
-        echo "<script>alert('Anda tidak memiliki akses sebagai admin.')</script>";
-      }
+    // cek username
+    if (mysqli_num_rows($result) === 1) {
+        // cek password
+        $row = mysqli_fetch_assoc($result);
+        if (password_verify($password, $row["password"])) {
+            // set session
+            $_SESSION["login"] = true;
+            $_SESSION["username"] = $row["username"];
+            $_SESSION["id_user"] = $row["id_user"];
+            header("refresh:0, index.php");
+        } else {
+            echo "<script>alert('Username atau password yang anda masukkan salah')</script>";
+        }
     } else {
-      echo "<script>alert('Username atau password yang anda masukkan salah')</script>";
+        echo "<script>alert('Username atau password yang anda masukkan salah')</script>";
     }
-  } else {
-    echo "<script>alert('Username atau password yang anda masukkan salah')</script>";
-  }
 }
 ?>
 <!DOCTYPE html>
@@ -101,15 +96,15 @@ if (isset($_POST["login"])) {
 
     <!--Hero Section-->
     <div class="hero-section hero-background">
-        <h1 class="page-title">Organic Fruits</h1>
+        <h1 class="page-title">login</h1>
     </div>
 
     <!--Navigation section-->
     <div class="container">
         <nav class="biolife-nav">
             <ul>
-                <li class="nav-item"><a href="index-2.html" class="permal-link">Home</a></li>
-                <li class="nav-item"><span class="current-page">Authentication</span></li>
+                <li class="nav-item"><a href="index-2.html" class="permal-link">beranda</a></li>
+                <li class="nav-item"><span class="current-page">login</span></li>
             </ul>
         </nav>
     </div>
@@ -121,28 +116,48 @@ if (isset($_POST["login"])) {
             <div class="container">
 
                 <div class="row">
-  <!-- Form Sign In -->
-  <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-    <div class="signin-container">
-      <form action="#" name="frm-login" method="post">
-        <p class="form-row">
-          <label for="username">Username:<span class="requite">*</span></label>
-          <input type="text" id="username" name="username" class="txt-input" required>
-        </p>
-        <p class="form-row">
-          <label for="password">Password:<span class="requite">*</span></label>
-          <input type="password" id="password" name="password" class="txt-input" required>
-        </p>
-        <p class="form-row wrap-btn">
-          <button class="btn btn-submit btn-bold" type="submit" name="login">Masuk</button>
-          <a href="#" class="link-to-help">Lupa password?</a>
-        </p>
-      </form>
-    </div>
-  </div>
-</div>
+                   <!--Form Sign In-->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="signin-container">
+                            <form action="#" name="frm-login" method="post">
+                                <p class="form-row">
+                                    <label for="username">Username:<span class="requite">*</span></label>
+                                    <input type="text" id="username" name="username" class="txt-input" required>
+                                </p>
+                                <p class="form-row">
+                                    <label for="password">Password:<span class="requite">*</span></label>
+                                    <input type="password" id="password" name="password" class="txt-input" required>
+                                </p>
+                                <p class="form-row wrap-btn">
+                                    <button class="btn btn-submit btn-bold" type="submit" name="login">Masuk</button>
+                                    <a href="#" class="link-to-help">Lupa password?</a>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
 
-                    
+                      <!--Go to Register form-->
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="register-in-container">
+                            <div class="intro">
+                                <h4 class="box-title">Pengguna Baru?</h4>
+                                <p class="sub-title">Buat akun dan Anda akan dapat:</p>
+                                <ul class="lis">
+                                    <li>Checkout lebih cepat</li>
+                                    <li>Hemat banyak biaya pengiriman</li>
+                                    <li>Akses riwayat pesanan Anda</li>
+                                    <li>Lacak pesanan baru</li>
+                                    <li>Simpan item ke Daftar Keinginan Anda</li>
+                                </ul>
+                                <a href="register.php" class="btn btn-bold">Buat Akun</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <!-- FOOTER -->
     <footer id="footer" class="footer layout-03">
@@ -150,8 +165,9 @@ if (isset($_POST["login"])) {
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-9">
-                        <section class="footer-item">
-                            <a href="#" class="logo footer-logo"><img src="assets/images/organic-3.png" alt="biolife logo" width="135" height="34"></a>
+                        <<a href="index.php" class="biolife-logo"><img src="assets/images/favicon.png"
+                                alt="biolife logo">
+                            <b style="font-size: 150% ; color: black;">boenss</b></a>
                             <div class="footer-phone-info">
                                 <i class="biolife-icon icon-head-phone"></i>
                                 <p class="r-info">
@@ -209,9 +225,7 @@ if (isset($_POST["login"])) {
                     <div class="col-xs-12">
                         <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
                     </div>
-                    <div class="col-lg-6 col-sm-6 col-xs-12">
-                       <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
-
+                
                     </div>
                     <div class="col-lg-6 col-sm-6 col-xs-12">
                         <div class="payment-methods">

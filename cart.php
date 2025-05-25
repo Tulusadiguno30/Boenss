@@ -1,3 +1,68 @@
+<?php
+session_start();
+include 'admin/koneksi.php';
+
+// Pastikan ada parameter id_produk yang dikirim dari URL
+$id_produk = isset($_GET['id']) ? mysqli_real_escape_string($koneksi, $_GET['id']) : '';
+
+$query = "SELECT p.nm_produk, p.harga, p.stok, p.desk, p.gambar, k.nm_ktg
+        FROM tb_produk p
+        JOIN tb_kategori k ON p.id_ktg = k.id_ktg
+        WHERE p.id_produk = '$id_produk'";
+
+$result = $koneksi->query($query);
+$produk = $result->fetch_assoc();
+
+// Query untuk produk lain selain produk yang sedang dibuka
+$query_lainnya = "SELECT id_produk, nm_produk, desk, harga, gambar, (SELECT nm_ktg FROM tb_kategori WHERE tb_kategori.id_ktg = p.id_ktg) as kategori 
+                FROM tb_produk p
+                WHERE id_produk != '$id_produk'
+                ORDER BY RAND()
+                  LIMIT 6"; // batasi sesuai kebutuhan
+
+$result_lainnya = $koneksi->query($query_lainnya);
+
+// Tambahkan pesanan ke database
+if (isset($_POST['add_to_cart'])) {
+    if (!isset($_SESSION['login'])) {
+        echo "<script>alert('Silakan login terlebih dahulu!'); window.location.href='login.php';</script>";
+    } else {
+        $id_user = $_SESSION['id_user'];
+        $qty = intval($_POST['qty']);
+        $total = $produk['harga'] * $qty;
+
+        // Cek stok langsung dari database (lebih aman)
+        $cek_stok = $koneksi->query("SELECT stok FROM tb_produk WHERE id_produk = '$id_produk'");
+        $data_stok = $cek_stok->fetch_assoc();
+
+        if ($qty > $data_stok['stok']) {
+            echo "<script>alert('Stok tidak mencukupi! Stok tersedia: {$data_stok['stok']}');</script>";
+        } else {
+            // Buat id_pesanan otomatis dengan format M001, M002, dst.
+            $query_id = "SELECT id_pesanan FROM tb_pesanan ORDER BY id_pesanan DESC LIMIT 1";
+            $result_id = $koneksi->query($query_id);
+            if ($result_id->num_rows > 0) {
+                $row = $result_id->fetch_assoc();
+                $last_id = intval(substr($row['id_pesanan'], 1)); // Ambil angka dari id terakhir
+                $new_id = "M" . str_pad($last_id + 1, 3, '0', STR_PAD_LEFT); // Format M001, M002
+            } else {
+                $new_id = "M001"; // Jika belum ada pesanan, mulai dari M001
+            }
+
+            // Simpan ke database
+            $query_insert = "INSERT INTO tb_pesanan (id_pesanan, id_produk, qty, total, id_user) 
+                            VALUES ('$new_id', '$id_produk', '$qty', '$total', '$id_user')";
+
+            if ($koneksi->query($query_insert) === TRUE) {
+                echo "<script>alert('Produk berhasil ditambahkan ke keranjang!'); window.location.href='belanja.php';</script>";
+            } else {
+                echo "<script>alert('Terjadi kesalahan saat menambahkan ke keranjang!');</script>";
+            }
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -65,18 +130,7 @@
                                                 class="biolife-icon icon-close-menu"></span></a>
                                         <input type="text" name="s" class="input-text" value=""
                                             placeholder="Search here...">
-                                        <select name="category">
-                                            <option value="-1" selected>All Categories</option>
-                                            <option value="vegetables">Vegetables</option>
-                                            <option value="fresh_berries">Fresh Berries</option>
-                                            <option value="ocean_foods">Ocean Foods</option>
-                                            <option value="butter_eggs">Butter & Eggs</option>
-                                            <option value="fastfood">Fastfood</option>
-                                            <option value="fresh_meat">Fresh Meat</option>
-                                            <option value="fresh_onion">Fresh Onion</option>
-                                            <option value="papaya_crisps">Papaya & Crisps</option>
-                                            <option value="oatmeal">Oatmeal</option>
-                                        </select>
+                                       
                                         <button type="submit" class="btn-submit">go</button>
                                     </form>
                                 </div>
@@ -114,9 +168,9 @@
 
                                                     if ($user_id) {
                                                         $query = "SELECT p.*, pr.nm_produk, pr.harga, pr.gambar 
-                    FROM tb_pesanan p 
-                    JOIN tb_produk pr ON p.id_produk = pr.id_produk 
-                    WHERE p.id_user = '$user_id'";
+                                                     FROM tb_pesanan p 
+                                                     JOIN tb_produk pr ON p.id_produk = pr.id_produk 
+                                                     WHERE p.id_user = '$user_id'";
                                                         $result = mysqli_query($koneksi, $query);
                                                         $subtotal = 0;
 
@@ -263,7 +317,7 @@
             <div class="container">
 
 
-                <!--Cart Table-->
+              <!--Cart Table-->
                 <div class="shopping-cart-container">
                     <div class="row">
                         <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12">
@@ -278,339 +332,247 @@
                                         <th class="product-subtotal">Total</th>
                                     </tr>
                                     </thead>
-                                    <?php
+                                   <?php
+
                                     include 'admin/koneksi.php';
 
-                                    if (!isset($_SESSION['id_user'])) {
-                                        //kalau belum login,redirect (opsional)
-                                        header("location:login.php");
+                                    if (isset($_SESSION['id_user'])) {
+                                        //kalau belum login, redirect (opsional)
+                                        header("location: login.php");
                                         exit;
                                     }
-                                    
-                                    
+
+                                    $id_user = $_SESSION['id_user'];
+
+                                    //cek jika tombol update ditekan
+                                    if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] ===
+                                    'POST' && isset($_POST['update_keranjang'])) {
+                                        $berhasil_update = false;
+                                        $gagal_update = false;
+
+                                        foreach ($_POST as $key => $value) {
+                                            if (strpos($key, 'qty') === 0) {
+                                                $id_pesanan = mysqli_real_escape_string($koneksi, str_replace('qty', '', $key));
+                                                $id_pesanan = mysqli_real_escape_string($koneksi, $id_pesanan);
+                                                $qty = intval($value);
+
+                                                if ($qty > 0) {
+                                                    //ambil id_produk dan stok dari pesanan
+                                                    $get_produk = mysqli_query($koneksi, "SELECT pr.id_produk,
+                                                    pr.stok FROM tb_pesanan p JOIN tb_produk pr ON p.id_produk = pr.id_produk 
+                                                    WHERE p.id_pesanan = '$id_pesanan' AND p.id_user = '$id_user'");
+                                                    $produk = mysqli_fetch_assoc($get_produk);
+
+                                                    if ($produk) {
+                                                        $stok = intval($produk['stok']);
+
+                                                        if ($qty <= $stok) {
+                                                            $query = "UPDATE tb_pesanan SET qty = 
+                                                            $qty WHERE id_pesanan = '$id_pesanan' AND id_user = '$id_user'";
+                                                            if (mysqli_query($koneksi, $query)) {
+                                                                $berhasil_update = true;
+                                                            }
+                                                        } else {
+                                                            //qty melebihi stok
+                                                            $gagal_update = true;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        //tampilkan alert bedasarkan hasil
+                                        if ($berhasil_update && !$gagal_update) {
+                                            echo "<script>alert('Jumlah Produk Berhasil Diperbarui!');</script>";
+                                        } else if ($gagal_update && !$berhasil_update) {
+                                            echo "<script>alert('Gagal Memperbarui: Jumlah Melebihi Stok Produk!');</script>";
+                                        } else if ($berhasil_update && !$gagal_update) {
+                                            echo "<script>alert('Sebagian Produk Berhasil Diperbarui. Beberapa Jumlah Melebihi Stok!');</script>";
+                                        }
+                                    }
+
+                                    //ambil ulang data setelah (atau sebelum) update
+                                    $query = "SELECT p.*, pr.nm_produk, pr.harga, pr.gambar
+                                    FROM tb_pesanan p
+                                    JOIN tb_produk pr ON p.id_produk = pr.id_produk
+                                     WHERE p.id_user = '$id_user'";
+                                    $result = mysqli_query($koneksi, $query);
+
+                                    $subtotal = 0;
+                                    ?>
+
                                     <tbody>
-                                    <tr class="cart_item">
-                                        <td class="product-thumbnail" data-title="Product Name">
-                                            <a class="prd-thumb" href="#">
-                                                <figure><img width="113" height="113" src="assets/images/shippingcart/pr-01.jpg" alt="shipping cart"></figure>
-                                            </a>
-                                            <a class="prd-name" href="#">National Fresh Fruit</a>
-                                            <div class="action">
-                                                <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-                                                <a href="#" class="remove"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                                            </div>
-                                        </td>
-                                        <td class="product-price" data-title="Price">
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                            </div>
-                                        </td>
-                                        <td class="product-quantity" data-title="Quantity">
-                                            <div class="quantity-box type1">
-                                                <div class="qty-input">
-                                                    <input type="text" name="qty12554" value="1" data-max_value="20" data-min_value="1" data-step="1">
-                                                    <a href="#" class="qty-btn btn-up"><i class="fa fa-caret-up" aria-hidden="true"></i></a>
-                                                    <a href="#" class="qty-btn btn-down"><i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="product-subtotal" data-title="Total">
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="cart_item">
-                                        <td class="product-thumbnail" data-title="Product Name">
-                                            <a class="prd-thumb" href="#">
-                                                <figure><img width="113" height="113" src="assets/images/shippingcart/pr-02.jpg" alt="shipping cart"></figure>
-                                            </a>
-                                            <a class="prd-name" href="#">National Fresh Fruit</a>
-                                            <div class="action">
-                                                <a href="#" class="edit"><i class="fa fa-pencil" aria-hidden="true"></i></a>
-                                                <a href="#" class="remove"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                                            </div>
-                                        </td>
-                                        <td class="product-price" data-title="Price">
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                            </div>
-                                        </td>
-                                        <td class="product-quantity" data-title="Quantity">
-                                            <div class="quantity-box type1">
-                                                <div class="qty-input">
-                                                    <input type="text" name="qty12554" value="1" data-max_value="20" data-min_value="1" data-step="1">
-                                                    <a href="#" class="qty-btn btn-up"><i class="fa fa-caret-up" aria-hidden="true"></i></a>
-                                                    <a href="#" class="qty-btn btn-down"><i class="fa fa-caret-down" aria-hidden="true"></i></a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="product-subtotal" data-title="Total">
-                                            <div class="price price-contain">
-                                                <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                                <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr class="cart_item wrap-buttons">
-                                        <td class="wrap-btn-control" colspan="4">
-                                            <a class="btn back-to-shop">Back to Shop</a>
-                                            <button class="btn btn-update" type="submit" disabled>update</button>
-                                            <button class="btn btn-clear" type="reset">clear all</button>
-                                        </td>
-                                    </tr>
+                                        <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                                            <?php $total_item = $row['harga'] * $row['qty']; ?>
+                                            <tr class="cart_item">
+                                                <td class="product-thumbnail" data-title="Product Name">
+                                                    <a class="prod-thumb" href="#">
+                                                        <figure><img width="113" height="113"
+                                                                src="admin/produk_img/<?= $row["gambar"]; ?>"
+                                                                alt="<?= $row["nm_produk"]; ?>"></figure>
+                                                    </a>
+                                                    <a class="prod-name" href="#"><?= $row['nm_produk']; ?></a>
+                                                    <div class="action">
+                                                        <a href="hapus_item.php?id=<?= $row['id_pesanan']; ?>"><i
+                                                                class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                                    </div>
+                                                </td>
+                                                <td class="product-price" data-title="Price">
+                                                    <div class="price price-contain">
+                                                        <ins><span class="price-amount"><span
+                                                                    class="currencySymbol">Rp.</span><?=
+                                                                     number_format($row['harga'], 0, '.', '.'); ?></span></ins>
+                                                    </div>
+                                                </td>
+                                                <td class="product-quantity" data-title="Quantity">
+                                                    <div class="quantity-box type1">
+                                                        <div class="qty-input">
+                                                            <input type="number" name="qty<?= $row['id_pesanan']; ?>"
+                                                                value="<?= $row['qty']; ?>" data-max_value="20"
+                                                                data-min_value="1" data-step="1">
+                                                            <a type="button" class="qty-btn btn-up"><i
+                                                                    class="fa fa-caret-up" aria-hidden="true"></i></a>
+                                                            <a type="button" class="qty-btn btn-down"><i
+                                                                    class="fa fa-caret-down" aria-hidden="true"></i></a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="product-subtotal" data-title="Total">
+                                                    <div class="price price-contain">
+                                                        <ins><span class="price-amount"><span
+                                                                    class="currencySymbol">Rp.</span><?= number_format($total_item, 0, ',', '.'); ?></span></ins>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <?php $subtotal += $total_item; ?>
+                                        <?php endwhile; ?>
+                                        <tr class="cart_item wrap-buttons">
+                                            <td class="wrap-btn-control" colspan="4">
+                                                <a class="btn back-to-shop" href="belanja.php">Kembali</a>
+                                                <button class="btn btn-update" type="submit"
+                                                    name="update_keranjang">Perbarui Keranjang</button>
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </form>
                         </div>
+
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                              <?php
+                            // Hitung diskon
+                            if ($subtotal > 500000) {
+                                $diskon = $subtotal * 0.08;
+                            } elseif ($subtotal > 150000) {
+                                $diskon = $subtotal * 0.05;
+                            } else {
+                                $diskon = 0;
+                            }
+
+                            $total_bayar = $subtotal - $diskon;
+                            ?>
                             <div class="shpcart-subtotal-block">
                                 <div class="subtotal-line">
-                                    <b class="stt-name">Subtotal <span class="sub">(2ittems)</span></b>
-                                    <span class="stt-price">£170.00</span>
+                                    <b class="stt-name">Subtotal</b>
+                                    <span class="stt-price">Rp. <?= number_format($subtotal, 0, ',', '.'); ?></span>
                                 </div>
                                 <div class="subtotal-line">
-                                    <b class="stt-name">Shipping</b>
-                                    <span class="stt-price">£0.00</span>
+                                    <b class="stt-name">Diskon</b>
+                                    <span class="stt-price">Rp. <?= number_format($diskon, 0, ',', '.'); ?></span>
+                                </div>
+                                <div class="subtotal-line">
+                                    <b class="att-name">Total Bayar</b>
+                                    <span class="att-price">Rp. <?= number_format($total_bayar,
+                                     0, ',', '.'); ?></span>
                                 </div>
                                 <div class="tax-fee">
-                                    <p class="title">Est. Taxes & Fees</p>
-                                    <p class="desc">Based on 56789</p>
                                 </div>
                                 <div class="btn-checkout">
-                                    <a href="#" class="btn checkout">Check out</a>
+                                    <a href="#" class="btn checkout" onclick="checkout()">Check out</a>
                                 </div>
-                                <div class="biolife-progress-bar">
-                                    <table>
-                                        <tr>
-                                            <td class="first-position">
-                                                <span class="index">$0</span>
-                                            </td>
-                                            <td class="mid-position">
-                                                <div class="progress">
-                                                    <div class="progress-bar" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                                </div>
-                                            </td>
-                                            <td class="last-position">
-                                                <span class="index">$99</span>
-                                            </td>
-                                        </tr>
-                                    </table>
-                                </div>
-                                <p class="pickup-info"><b>Free Pickup</b> is available as soon as today More about shipping and pickup</p>
                             </div>
                         </div>
-                    </div>
-                </div>
-                 <script>
-        function checkout() {
-            if (confirm("Yakin ingin checkout sekarang?")) {
-                fetch('checkout.php', {
-                    method: 'POST'
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) {
-                            window.location.href = "belanja.php";
-                        }
-                    })
-                    .catch(error => {
-                        alert("Terjadi kesalahan saat proses checkout.");
-                        console.error(error);
-                    });
-            }
-        }
-    </script>
-                <!--Related Product-->
-                <div class="product-related-box single-layout">
-                    <div class="biolife-title-box lg-margin-bottom-26px-im">
-                    </div>
-                    <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile" data-slick='{"rows":1,"arrows":true,"dots":false,"infinite":false,"speed":400,"slidesMargin":0,"slidesToShow":5, "responsive":[{"breakpoint":1200, "settings":{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":20}},{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":10}}]}'>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-13.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price ">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-14.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-15.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-10.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-08.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-21.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="product-item">
-                            <div class="contain-product layout-default">
-                                <div class="product-thumb">
-                                    <a href="#" class="link-to-product">
-                                        <img src="assets/images/products/p-18.jpg" alt="dd" width="270" height="270" class="product-thumnail">
-                                    </a>
-                                </div>
-                                <div class="info">
-                                    <b class="categories">Fresh Fruit</b>
-                                    <h4 class="product-title"><a href="#" class="pr-name">National Fresh Fruit</a></h4>
-                                    <div class="price">
-                                        <ins><span class="price-amount"><span class="currencySymbol">£</span>85.00</span></ins>
-                                        <del><span class="price-amount"><span class="currencySymbol">£</span>95.00</span></del>
-                                    </div>
-                                    <div class="slide-down-box">
-                                        <p class="message">All products are carefully selected to ensure food safety.</p>
-                                        <div class="buttons">
-                                            <a href="#" class="btn wishlist-btn"><i class="fa fa-heart" aria-hidden="true"></i></a>
-                                            <a href="#" class="btn add-to-cart-btn"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i>add to cart</a>
-                                            <a href="#" class="btn compare-btn"><i class="fa fa-random" aria-hidden="true"></i></a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
+                     </div>
+                 </div>
+                              <script>
+                            function checkout() {
+                                if (confirm("Yakin ingin checkout sekarang?")) {
+                                    fetch('checkout.php', {
+                                        method: 'POST'
+                                    })
+                                        .then(response => response.json())
+                                        .then(data => {
+                                            alert(data.message);
+                                            if (data.success) {
+                                                window.location.href = "belanja.php";
+                                            }
+                                        })
+                                        .catch(error => {
+                                            alert("Terjadi kesalahan saat proses checkout.");
+                                            console.error(error);
+                                        });
+                                }
+                            }
+                        </script>   
+                        
+                        
 
+                 <!-- related products -->
+                        <div class="product-related-box single-layout">
+                            <div class="biolife-title-box lg-margin-bottom-26px-im">
+                                <span class="biolife-icon icon-organic"></span>
+                                <span class="subtitle">Semua Produk Terbaik Untuk Anda</span>
+                                <h3 class="main-title">Produk Terkait</h3>
+                            </div>
+                            <ul class="products-list biolife-carousel nav-center-02 nav-none-on-mobile"
+                                data-slick='{"rows":1,"arrows":true,"dots":false,"infinite":false,"speed":400,
+                                "slidesMargin":0,"slidesToShow":5, "responsive":[{"breakpoint":1200, "settings"
+                                :{ "slidesToShow": 4}},{"breakpoint":992, "settings":{ "slidesToShow": 3, "slidesMargin":20 }}
+                                ,{"breakpoint":768, "settings":{ "slidesToShow": 2, "slidesMargin":10}}]}'>
+
+                                <?php while ($produk_lain = $result_lainnya->fetch_assoc()): ?>
+                                    <li class="product-item">
+                                        <div class="contain-product layout-default">
+                                            <div class="product-thumb">
+                                                <a href="detail_produk.php?id=<?= $produk_lain['id_produk']; ?>"
+                                                    class="link-to-product">
+                                                    <img src="admin/produk_img/<?= $produk_lain['gambar']; ?>"
+                                                        alt="<?= $produk_lain['nm_produk']; ?>"
+                                                        class="product-thumbnail square-image">
+                                                </a>
+                                            </div>
+                                            <div class="info">
+                                                <b class="categories"><?= $produk_lain['kategori']; ?></b>
+                                                <h4 class="product-title"><a
+                                                        href="detail_produk.php?id=<?= $produk_lain['id_produk']; ?>"
+                                                        class="pr-name"><?= $produk_lain['nm_produk']; ?></a></h4>
+                                                <div class="price">
+                                                    <ins><span class="price-amount"><span
+                                                                class="currencySymbol">Rp.</span><?= number_format($produk_lain['harga'], 0, ',', '.'); ?></span></ins>
+                                                </div>
+                                                <div class="slide-down-box">
+                                                    <p class="message"><?= $produk_lain['desk']; ?></p>
+                                                    <div class="buttons">
+                                                        <a href="detail_produk.php?id=<?= $produk_lain['id_produk']; ?>"
+                                                            class="btn add-to-cart-btn">
+                                                            <i class="fa fa-cart-arrow-down"
+                                                                aria-hidden="true"></i>Keranjang
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <?php endwhile; ?>
+                            </ul>
+
+                        </div>
+
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
+
+
 
   <!-- FOOTER -->
     <footer id="footer" class="footer layout-03">
@@ -668,9 +630,6 @@
                             </div>
                             <div class="biolife-social inline">
                                 <ul class="socials">
-
-                                    <li><a href="#" title="instagram" class="socail-btn"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
-                                </ul>
                             </div>
                         </section>
                     </div>
@@ -679,9 +638,6 @@
                     <div class="col-xs-12">
                         <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
                     </div>
-                    <div class="col-lg-6 col-sm-6 col-xs-12">
-                       <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
-
                     </div>
                     <div class="col-lg-6 col-sm-6 col-xs-12">
                         <div class="payment-methods">
@@ -760,27 +716,7 @@
         </div>
     </div>
 
-    <script>
-        function checkout() {
-            if (confirm("Yakin ingin checkout sekarang?")) {
-                fetch('checkout.php', {
-                    method: 'POST'
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        alert(data.message);
-                        if (data.success) {
-                            window.location.href = "belanja.php";
-                        }
-                    })
-                    .catch(error => {
-                        alert("Terjadi kesalahan saat proses checkout.");
-                        console.error(error);
-                    });
-            }
-        }
-    </script>
-
+   
     <!-- Scroll Top Button -->
     <a class="btn-scroll-top"><i class="biolife-icon icon-left-arrow"></i></a>
 

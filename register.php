@@ -1,11 +1,8 @@
 <?php
-
 require 'admin/koneksi.php';
 require 'function.php';
-
 $sql = mysqli_query($koneksi, "select * from tb_user");
 $data = mysqli_fetch_array($sql);
-
 ?>
 <!DOCTYPE html>
 <html class="no-js" lang="en">
@@ -29,7 +26,7 @@ $data = mysqli_fetch_array($sql);
     <link rel="stylesheet" href="assets/css/main-color.css">
 </head>
 <body class="biolife-body">
-    <?php
+     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (registrasi($_POST)) {
             echo "<script>alert('User baru berhasil ditambahkan');";
@@ -40,6 +37,7 @@ $data = mysqli_fetch_array($sql);
         }
     }
     ?>
+
     <!-- Preloader -->
     <div id="biof-loading">
         <div class="biof-loading-center">
@@ -108,52 +106,52 @@ $data = mysqli_fetch_array($sql);
                 <div class="row">
 
                     <!--Form Sign In-->
-<div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-    <div class="signin-container">
-        <form name="frm-login" method="post">
-            <p class="form-row">
-                <label for="username">Username:<span class="require"></span></label>
-                <input type="text" id="username" name="username" class="txt-input" required>
-            </p>
-            <p class="form-row">
-                <label for="password">Password:<span class="require"></span></label>
-                <input type="password" id="password" name="password" class="txt-input" required>
-            </p>
-            <p class="form-row">
-                <label for="password">Konfirmasi password:<span class="require"></span></label>
-                <input type="password" id="password" name="password" class="txt-input" required>
-            </p>
-            <p class="form-row wrap-btn">
-                <button class="btn btn-submit btn-hold" type="submit" name="register">Daftar Sekarang</button>
-            </p>
-        </form>
-    </div>
-</div>
+                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                        <div class="signin-container">
+                            <form name="frm-login" method="post">
+                                <p class="form-row">
+                                    <label for="username">Username:<span class="requite">*</span></label>
+                                    <input type="text" id="username" name="username" class="txt-input" required>
+                                </p>
+                                <p class="form-row">
+                                    <label for="password">Password:<span class="requite">*</span></label>
+                                    <input type="password" id="password" name="password" class="txt-input" required>
+                                </p>
+                                <p class="form-row">
+                                    <label for="password2">Konfirmasi Password:<span class="requite">*</span></label>
+                                    <input type="password" id="password2" name="password2" class="txt-input" required>
+                                </p>
+                                <p class="form-row wrap-btn">
+                                    <button class="btn btn-submit btn-bold" type="submit" name="register">Daftar
+                                        Sekarang</button>
+                                </p>
+                            </form>
+                        </div>
+                    </div>
+
                     <!--Go to Register form-->
                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                         <div class="register-in-container">
                             <div class="intro">
-                                <h4 class="box-title">New Customer?</h4>
-                                <p class="sub-title">Create an account with us and you’ll be able to:</p>
+                                <h4 class="box-title">Sudah Punya Akun ?</h4>
+                                <p class="sub-title">Masuk untuk menikmati berbagai kemudahan berikut:</p>
                                 <ul class="lis">
-                                    <li>Check out faster</li>
-                                    <li>Save multiple shipping anddesses</li>
-                                    <li>Access your order history</li>
-                                    <li>Track new orders</li>
-                                    <li>Save items to your Wishlist</li>
+                                    <li>Proses checkout lebih cepat</li>
+                                    <li>Pengiriman yang lebih efisien</li>
+                                    <li>Akses ke riwayat dan status pesanan</li>
+                                    <li>Lacak pengiriman terbaru Anda</li>
+                                    <li>Kelola Daftar Keinginan Anda dengan mudah</li>
                                 </ul>
-                                <a href="#" class="btn btn-bold">Create an account</a>
+                                <a href="login.php" class="btn btn-bold">Masuk Sekarang</a>
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
+
+
 
     <!-- FOOTER -->
     <footer id="footer" class="footer layout-03">
@@ -161,8 +159,9 @@ $data = mysqli_fetch_array($sql);
             <div class="container">
                 <div class="row">
                     <div class="col-lg-4 col-md-4 col-sm-9">
-                        <section class="footer-item">
-                            <a href="#" class="logo footer-logo"><img src="assets/images/organic-3.png" alt="biolife logo" width="135" height="34"></a>
+                        <a href="index.php" class="biolife-logo"><img src="assets/images/favicon.png"
+                                alt="biolife logo">
+                            <b style="font-size: 150% ; color: black;">boenss</b></a>
                             <div class="footer-phone-info">
                                 <i class="biolife-icon icon-head-phone"></i>
                                 <p class="r-info">
@@ -220,9 +219,7 @@ $data = mysqli_fetch_array($sql);
                     <div class="col-xs-12">
                         <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
                     </div>
-                    <div class="col-lg-6 col-sm-6 col-xs-12">
-                       <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
-
+                   
                     </div>
                     <div class="col-lg-6 col-sm-6 col-xs-12">
                         <div class="payment-methods">

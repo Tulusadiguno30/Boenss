@@ -240,10 +240,12 @@ if (isset($_POST['simpan'])) {
                                         }
                                         ?>
                                     </select>
+
                                 </div>
                                 <div class="col-12">
                                     <label for="gambar" class="form-label">Gambar Produk</label>
                                     <input type="file" class="form-control" id="gambar" name="gambar" accept="image/*">
+                                    
                                 </div>
                                 <div class="text-center">
                                     <button type="reset" class="btn btn-secondary">Reset</button>

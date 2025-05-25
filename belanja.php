@@ -121,26 +121,14 @@ session_start();
                     <div class="col-lg-3 col-md-3 col-6 d-flex justify-content-end align-items-center">
                         <div class="biolife-cart-info">
                             <div class="mobile-search">
-                                <a href="javascript:void(0)" class="open-searchbox"><i
-                                        class="biolife-icon icon-search"></i></a>
+                               
                                 <div class="mobile-search-content">
                                     <form action="#" class="form-search" name="mobile-seacrh" method="get">
                                         <a href="#" class="btn-close"><span
                                                 class="biolife-icon icon-close-menu"></span></a>
                                         <input type="text" name="s" class="input-text" value=""
                                             placeholder="Search here...">
-                                        <select name="category">
-                                            <option value="-1" selected>All Categories</option>
-                                            <option value="vegetables">Vegetables</option>
-                                            <option value="fresh_berries">Fresh Berries</option>
-                                            <option value="ocean_foods">Ocean Foods</option>
-                                            <option value="butter_eggs">Butter & Eggs</option>
-                                            <option value="fastfood">Fastfood</option>
-                                            <option value="fresh_meat">Fresh Meat</option>
-                                            <option value="fresh_onion">Fresh Onion</option>
-                                            <option value="papaya_crisps">Papaya & Crisps</option>
-                                            <option value="oatmeal">Oatmeal</option>
-                                        </select>
+                                        
                                         <button type="submit" class="btn-submit">go</button>
                                     </form>
                                 </div>
@@ -227,16 +215,8 @@ session_start();
 
                                                 <p class="btn-control">
                                                     <a href="cart.php" class="btn view-cart">Lihat Keranjang</a>
-                                                    <a href="#" class="btn" onclick="checkout()">checkout</a>
-                                                    <div class="minicart-block">
-                                <div class="minicart-contain">
-                                    <a href="javascript:void(0)" class="link-to">
-                                            <span class="icon-qty-combine">
-                                                <i class="icon-cart-mini biolife-icon"></i>
-                                                <span class="qty">0</span>
-                                            </span>
-                                        
-                                                </p>
+                                                    <a href="#" class="btn" onclick="checkout()">checkout</a>                                        
+                                              </p>
                                             </div>
                                         </div>
                                     </div>
@@ -294,10 +274,10 @@ session_start();
                                 <ul class="menu clone-main-menu">
                                     <?php
                                     include "admin/koneksi.php";
-                                    $kategori_result = mysqli_query($koneksi, "SELECT * FROM tb_kategori ORDER BY nm_kategori ASC");
+                                    $kategori_result = mysqli_query($koneksi, "SELECT * FROM tb_kategori ORDER BY nm_ktg ASC");
                                     while ($kategori = mysqli_fetch_assoc($kategori_result)) {
-                                        $selected = (isset($_GET['kategori']) && $_GET['kategori'] == $kategori['id_kategori']) ? 'style="font-weight:bold;"' : '';
-                                        echo '<li class="menu-item"><a href="?kategori=' . $kategori['id_kategori'] . '" class="menu-title" ' . $selected . '>' . $kategori['nm_kategori'] . '</a></li>';
+                                        $selected = (isset($_GET['kategori']) && $_GET['kategori'] == $kategori['id_ktg']) ? 'style="font-weight:bold;"' : '';
+                                        echo '<li class="menu-item"><a href="?kategori=' . $kategori['id_ktg'] . '" class="menu-title" ' . $selected . '>' . $kategori['nm_ktg'] . '</a></li>';
                                     }
                                     ?>
                                 </ul>
@@ -448,7 +428,7 @@ switch (strtolower($data['nm_ktg'])) {
         echo '<li>Ikan Segar dari Nelayan Lokal</li><li>Tanpa Bahan Pengawet</li>';
         break;
     case 'bumbu dapur':
-        echo '<li>Bumbu Dapur Alami</li><li>Rempah-rempah Pilihan</li>';
+        echo '<li>Bumbu dapur Alami</li><li>Rempah-rempah Pilihan</li>';
         break;
     case 'frozen food':
         echo '<li>Kualitas Terjaga dengan Pembekuan</li><li>Siap Masak, Praktis & Higienis</li>';
@@ -559,9 +539,6 @@ switch (strtolower($data['nm_ktg'])) {
                             </div>
                             <div class="biolife-social inline">
                                 <ul class="socials">
-
-                                    <li><a href="#" title="instagram" class="socail-btn"><i class="fa fa-instagram" aria-hidden="true"></i></a></li>
-                                </ul>
                             </div>
                         </section>
                     </div>
@@ -570,9 +547,6 @@ switch (strtolower($data['nm_ktg'])) {
                     <div class="col-xs-12">
                         <div class="separator sm-margin-top-70px xs-margin-top-40px"></div>
                     </div>
-                    <div class="col-lg-6 col-sm-6 col-xs-12">
-                       <div class="copy-right-text"><p><a href="templateshub.net">Templates Hub</a></p></div>
-
                     </div>
                     <div class="col-lg-6 col-sm-6 col-xs-12">
                         <div class="payment-methods">
