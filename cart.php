@@ -70,7 +70,7 @@ if (isset($_POST['add_to_cart'])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Biolife - Organic Food</title>
+    <title>keranjang- boenss</title>
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
@@ -83,6 +83,20 @@ if (isset($_POST['add_to_cart'])) {
     <link rel="stylesheet" href="assets/css/slick.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/main-color.css">
+     <style>
+        .login-button a {
+            font-weight: 600;
+            color: #347928;
+            border: 1px solid #347928;
+            transition: all 0.3s ease;
+        }
+
+        .login-button a:hover {
+            background-color: #347928;
+            color: #fff;
+            text-decoration: none;
+        }
+    </style>
 </head>
 <body class="biolife-body">
 
@@ -119,139 +133,12 @@ if (isset($_POST['add_to_cart'])) {
                             </ul>
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-3 col-6 d-flex justify-content-end align-items-center">
+                     <div class="col-lg-3 col-md-3 col-6 d-flex justify-content-end align-items-center">
                         <div class="biolife-cart-info">
-                            <div class="mobile-search">
-                                <a href="javascript:void(0)" class="open-searchbox"><i
-                                        class="biolife-icon icon-search"></i></a>
-                                <div class="mobile-search-content">
-                                    <form action="#" class="form-search" name="mobile-seacrh" method="get">
-                                        <a href="#" class="btn-close"><span
-                                                class="biolife-icon icon-close-menu"></span></a>
-                                        <input type="text" name="s" class="input-text" value=""
-                                            placeholder="Search here...">
-                                       
-                                        <button type="submit" class="btn-submit">go</button>
-                                    </form>
-                                </div>
+                            <div class="mobile-search"></div>
+                            <div class="login-button">
+                                <a href="login.php" class="btn btn-sm btn-outline-primary" style="padding: 6px 15px; border-radius: 20px;">Login</a>
                             </div>
-
-                            <?php if (isset($_SESSION['username'])): ?>
-                                <?php
-                                include 'admin/koneksi.php';
-                                $user_id = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null;
-
-                                if ($user_id) {
-                                    $query = "SELECT COUNT(*) as total FROM tb_pesanan WHERE id_user = '$user_id'";
-                                    $result = mysqli_query($koneksi, $query);
-                                    $data = mysqli_fetch_assoc($result);
-                                    $jumlah_item = isset($data['total']) ? $data['total'] : 0;
-                                } else {
-                                    $jumlah_item = 0;
-                                }
-                                ?>
-                                <div class="minicart-block">
-                                    <div class="minicart-contain">
-                                        <a href="javascript:void(0)" class="link-to">
-                                            <span class="icon-qty-combine">
-                                                <i class="icon-cart-mini biolife-icon"></i>
-                                                <span class="qty"><?= $jumlah_item ?></span>
-                                            </span>
-                                            <span class="title">Keranjang</span>
-                                        </a>
-                                        <div class="cart-content">
-                                            <div class="cart-inner">
-                                                <ul class="products">
-                                                    <?php
-                                                    include 'admin/koneksi.php';
-                                                    $user_id = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : null;
-
-                                                    if ($user_id) {
-                                                        $query = "SELECT p.*, pr.nm_produk, pr.harga, pr.gambar 
-                                                     FROM tb_pesanan p 
-                                                     JOIN tb_produk pr ON p.id_produk = pr.id_produk 
-                                                     WHERE p.id_user = '$user_id'";
-                                                        $result = mysqli_query($koneksi, $query);
-                                                        $subtotal = 0;
-
-                                                        while ($row = mysqli_fetch_assoc($result)):
-                                                            $total_harga = $row['harga'] * $row['qty'];
-                                                            $subtotal += $total_harga;
-                                                            ?>
-                                                            <li>
-                                                                <div class="minicart-item">
-                                                                    <div class="thumb">
-                                                                        <a href="#"><img
-                                                                                src="admin/produk_img/<?= $row['gambar'] ?>"
-                                                                                width="90" height="90"
-                                                                                alt="<?= $row['nm_produk'] ?>"></a>
-                                                                    </div>
-                                                                    <div class="left-info">
-                                                                        <div class="product-title"><a href="#"
-                                                                                class="product-name"><?= $row['nm_produk'] ?></a>
-                                                                        </div>
-                                                                        <div class="price">
-                                                                            <ins><span class="price-amount"><span
-                                                                                        class="currencySymbol">Rp.</span><?= number_format($row['harga'], 0, ',', '.') ?></span></ins>
-                                                                        </div>
-                                                                        <div class="qty">
-                                                                            <label>Qty:</label>
-                                                                            <input type="number" class="input-qty"
-                                                                                value="<?= $row['qty'] ?>" disabled>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="action">
-                                                                        <a href="hapus_item.php?id=<?= $row['id_pesanan'] ?>"><i
-                                                                                class="fa fa-trash-o" aria-hidden="true"></i></a>
-                                                                    </div>
-                                                                </div>
-                                                            </li>
-                                                            <?php
-                                                        endwhile;
-                                                    } else {
-                                                        echo '<li><p style="padding: 10px;">Keranjang kosong.</p></li>';
-                                                        $subtotal = 0;
-                                                    }
-                                                    ?>
-                                                </ul>
-
-                                                <p class="btn-control">
-                                                    <a href="cart.php" class="btn view-cart">Lihat Keranjang</a>
-                                                    <a href="#" class="btn" onclick="checkout()">checkout</a>
-                                                    <div class="minicart-block">
-                                <div class="minicart-contain">
-                                    <a href="javascript:void(0)" class="link-to">
-                                            <span class="icon-qty-combine">
-                                                <i class="icon-cart-mini biolife-icon"></i>
-                                                <span class="qty">0</span>
-                                            </span>
-                                        
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="dropdown user wishlist-block hidden-sm hidden-xs">
-                                    <a class="dropdown-toggle d-flex align-items-center link-to" href="#" id="userDropdown"
-                                        role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="icon-qty-combine">
-                                            <i class="fas fa-user biolife-icon"></i>
-                                            <span class="qty"><?= htmlspecialchars($_SESSION['username']);  ?></span>
-                                            <!-- Ganti qty jadi username -->
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
-                                        <ul class="logout-list">
-                                            <li><a href="logout.php">Logout</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            <?php else: ?>
-                                <!-- Login Button (shown if not logged in) -->
-                                <div class="login-button">
-                                    <a href="login.php" class="btn btn-sm btn-outline-primary">Login</a>
-                                </div>
-                            <?php endif; ?>
                             <div class="mobile-menu-toggle">
                                 <a class="btn-toggle" data-object="open-mobile-menu" href="javascript:void(0)">
                                     <span></span>
@@ -264,35 +151,7 @@ if (isset($_POST['add_to_cart'])) {
                 </div>
             </div>
         </div>
-
-        <div class="header-bottom hidden-sm hidden-xs">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3 col-md-4">
-                        <div class="vertical-menu vertical-category-block">
-
-                            <div class="wrap-menu">
-                                <ul class="menu clone-main-menu">
-                                    <?php
-                                    include "admin/koneksi.php";
-                                    $kategori_result = mysqli_query($koneksi, "SELECT * FROM tb_kategori ORDER BY nm_kategori ASC");
-                                    while ($kategori = mysqli_fetch_assoc($kategori_result)) {
-                                        $selected = (isset($_GET['kategori']) && $_GET['kategori'] == $kategori['id_kategori']) ? 'style="font-weight:bold;"' : '';
-                                        echo '<li class="menu-item"><a href="?kategori=' . $kategori['id_kategori'] . '" class="menu-title" ' . $selected . '>' . $kategori['nm_kategori'] . '</a></li>';
-                                    }
-                                    ?>
-                                </ul>
-
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-9 col-md-8 padding-top-2px">
-                        
-                        
-                    </div>
-                </div>
-            </div>
-        </div>
+    
     </header>
    
     <!--Hero Section-->
@@ -331,12 +190,11 @@ if (isset($_POST['add_to_cart'])) {
                                         <th class="product-quantity">jumlah</th>
                                         <th class="product-subtotal">Total</th>
                                     </tr>
-                                    </thead>
-                                   <?php
+                                  <?php
 
                                     include 'admin/koneksi.php';
 
-                                    if (isset($_SESSION['id_user'])) {
+                                    if (!isset($_SESSION['id_user'])) {
                                         //kalau belum login, redirect (opsional)
                                         header("location: login.php");
                                         exit;
@@ -401,7 +259,7 @@ if (isset($_POST['add_to_cart'])) {
                                     $subtotal = 0;
                                     ?>
 
-                                    <tbody>
+                                      <tbody>
                                         <?php while ($row = mysqli_fetch_assoc($result)): ?>
                                             <?php $total_item = $row['harga'] * $row['qty']; ?>
                                             <tr class="cart_item">
@@ -420,8 +278,7 @@ if (isset($_POST['add_to_cart'])) {
                                                 <td class="product-price" data-title="Price">
                                                     <div class="price price-contain">
                                                         <ins><span class="price-amount"><span
-                                                                    class="currencySymbol">Rp.</span><?=
-                                                                     number_format($row['harga'], 0, '.', '.'); ?></span></ins>
+                                                                    class="currencySymbol">Rp.</span><?= number_format($row['harga'], 0, '.', '.'); ?></span></ins>
                                                     </div>
                                                 </td>
                                                 <td class="product-quantity" data-title="Quantity">

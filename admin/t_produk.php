@@ -38,29 +38,32 @@ if (isset($_POST['simpan'])) {
     $tmp_file = $_FILES['gambar']['tmp_name'];
     $extension = strtolower(pathinfo($imgfile, PATHINFO_EXTENSION));
 
-    $dir = "produk_img/"; // Direktori penyimpanan gambar
-   $allowed_extensions = array("jpg", "jpeg", "png", "webp");
+    $dir = "produk_img/";
+    $allowed_extensions = array("jpg", "jpeg", "png", "webp");
 
     if (!in_array($extension, $allowed_extensions)) {
         echo "<script>alert('Format tidak valid. Hanya jpg, jpeg, png, dan webp yang diperbolehkan.');</script>";
     } else {
         // Rename file gambar agar unik
         $imgnewfile = md5(time() . $imgfile) . "." . $extension;
-        move_uploaded_file($tmp_file, $dir . $imgnewfile);
+        
+        if (!move_uploaded_file($tmp_file, $dir . $imgnewfile)) {
+            echo "<script>alert('Gagal mengupload gambar!');</script>";
+            exit;
+        }
 
         // Simpan data ke database
         $query = mysqli_query($koneksi, "INSERT INTO tb_produk (id_produk, nm_produk, harga, stok, desk, id_ktg, gambar) 
-                                         VALUES ('$id_produk', '$nm_produk', '$harga', '$stok', '$desk', '$id_ktg', '$gambar')");
+                                        VALUES ('$id_produk', '$nm_produk', '$harga', '$stok', '$desk', '$id_ktg', '$imgnewfile')");
 
         if ($query) {
-            echo "<script>alert('Produk berhasil ditambahkan!');</script>";
-            header("refresh:0, produk.php");
+            echo "<script>alert('Produk berhasil ditambahkan!'); window.location.href='produk.php';</script>";
         } else {
-            echo "<script>alert('Gagal menambahkan produk!');</script>";
-            header("refresh:0, produk.php");
+            echo "<script>alert('Gagal menambahkan produk! Error: " . mysqli_error($koneksi) . "');</script>";
         }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

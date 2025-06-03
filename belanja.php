@@ -298,7 +298,7 @@ session_start();
                         <div class="live-info">
                             <p class="telephone"><i class="fa fa-phone" aria-hidden="true"></i><b
                                     class="phone-number">085695449330</b></p>
-                            <p class="working-time">Sen-Jum: 8:30-19:30; Sab-Min: 9:30-16:30</p>
+                            <p class="working-time">Sen-Jum: 8:30am-19:40pm; Sab-Min: 9:30am-16:40pm</p>
                         </div>
                     </div>
                 </div>

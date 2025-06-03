@@ -7,17 +7,18 @@ if (!isset($_SESSION['id_user'])) {
     exit;
 }
 
-if (isset($_GET['id_'])) {
-    $id_pesanan = $_GET['id_'];
-    $query = "DELETE FROM tb_pesanan WEHRE id_pesanan = '$id_pesanan'";
+if (isset($_GET['id'])) {
+    $id_pesanan = mysqli_real_escape_string($koneksi, $_GET['id']);
+
+    $query = "DELETE FROM tb_pesanan WHERE id_pesanan = '$id_pesanan'";
     $result = mysqli_query($koneksi, $query);
 
     if ($result) {
-        echo "<script>alert('item berhasil dihapus dari keranjang'); window.location='cart.php';</script>";
+        echo "<script>alert('Item berhasil dihapus dari keranjang'); window.location='cart.php';</script>";
     } else {
         echo "Gagal menghapus: " . mysqli_error($koneksi);
     }
 } else {
-    echo "<script>alert('ID pesanan tidak ditemukan'); window.location='keranjang.php';</script>";
+    echo "<script>alert('ID pesanan tidak ditemukan'); window.location='cart.php';</script>";
 }
 ?>

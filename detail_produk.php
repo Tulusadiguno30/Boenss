@@ -5,7 +5,7 @@ include 'admin/koneksi.php';
 // Pastikan ada parameter id_produk yang dikirim dari URL
 $id_produk = isset($_GET['id']) ? mysqli_real_escape_string($koneksi, $_GET['id']) : '';
 
-$query = "SELECT p.nm_produk, p.harga, p.stok, p.desk, p.gambar, k.nm_ktg
+$query = "SELECT p.nm_produk, p.harga, p.stok, p.desk, p.gambar, k.nm_ktg 
         FROM tb_produk p
         JOIN tb_kategori k ON p.id_ktg = k.id_ktg
         WHERE p.id_produk = '$id_produk'";
@@ -27,7 +27,7 @@ if (isset($_POST['add_to_cart'])) {
     if (!isset($_SESSION['login'])) {
         echo "<script>alert('Silakan login terlebih dahulu!'); window.location.href='login.php';</script>";
     } else {
-        $id_user = $_SESSION['id_user'];
+        $id_user = ($_SESSION['id_user']);
         $qty = intval($_POST['qty']);
         $total = $produk['harga'] * $qty;
 
@@ -73,7 +73,7 @@ if (isset($_POST['add_to_cart'])) {
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Biolife - Organic Food</title>
+    <title>detail- boenss</title>
     <link href="https://fonts.googleapis.com/css?family=Cairo:400,600,700&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Poppins:600&amp;display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400i,700i" rel="stylesheet">
@@ -86,7 +86,75 @@ if (isset($_POST['add_to_cart'])) {
     <link rel="stylesheet" href="assets/css/slick.min.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/main-color.css">
+    <style>
+        .login-button a {
+            font-weight: 600;
+            color: #347928;
+            border: 1px solid #347928;
+            transition: all 0.3s ease;
+        }
+
+        .login-button a:hover {
+            background-color: #347928;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        .logout-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .logout-list li {
+            border-bottom: 1px solid #eee;
+        }
+
+        .logout-list li:last-child {
+            border-bottom: none;
+        }
+
+        .logout-list li a {
+            display: block;
+            padding: 10px 15px;
+            text-decoration: none;
+            color: #333;
+            transition: background 0.2s ease;
+        }
+
+        .logout-list li a:hover {
+            background-color: #f2f2f2;
+        }
+
+        .square-image {
+            width: 270px;
+            height: 270px;
+            object-fit: cover;
+            /* Crop gambar agar isi tetap rapi */
+            object-position: center;
+            border-radius: 8px;
+            /* opsional, biar lebih halus */
+        }
+
+        .square-detail-img {
+            width: 500px;
+            height: 500px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 10px;
+            /* opsional untuk sudut melengkung */
+            display: block;
+            margin: 0 auto;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            display: block;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
+
 <body class="biolife-body">
 
     <!-- Preloader -->
