@@ -7,18 +7,18 @@ require_once('koneksi.php');
 
 function query($query)
 {
-  global $koneksi;
-  $result = mysqli_query($koneksi, $query);
-  $rows = [];
-  while ($row = mysqli_fetch_assoc($result)) {
-    $rows[] = $row;
-  }
-  return $rows;
+   global $koneksi;
+   $result = mysqli_query($koneksi, $query);
+   $rows = [];
+   while ($row = mysqli_fetch_assoc($result)) {
+      $rows[] = $row;
+   }
+   return $rows;
 }
 
 // Query dengan JOIN antara tb_produk dan tb_kategori
 $data = query("SELECT tb_produk.id_produk, tb_produk.nm_produk, tb_produk.harga, tb_produk.stok, 
-                      tb_produk.ket, tb_produk.gambar, tb_kategori.nm_ktg
+                      tb_produk.desk, tb_produk.gambar, tb_kategori.nm_ktg
                FROM tb_produk 
                JOIN tb_kategori ON tb_produk.id_ktg = tb_kategori.id_ktg");
 
@@ -73,9 +73,9 @@ $html = '<html>
 <table align="center" cellspacing="0">
 <thead>
 <tr>
-  <th>ID Produk</th>
+  <th>ID_Produk</th>
   <th>Gambar</th>
-  <th>Nama Produk</th>
+  <th>Nm_Produk</th>
   <th>Kategori</th>
   <th>Deskripsi</th>
   <th>Harga</th>
@@ -84,16 +84,16 @@ $html = '<html>
 </thead>';
 
 foreach ($data as $row) {
-  $formatted_harga = "Rp " . number_format($row["harga"], 0, ',', '.'); // Format harga Rupiah
-  $html .= '<tbody>
+   $formatted_harga = "Rp " . number_format($row["harga"], 0, ',', '.'); // Format harga Rupiah
+   $html .= '<tbody>
   <tr align="center">
-    <td>'.$row["id_produk"].'</td>
-    <td><img src="produk_img/'. $row["gambar"].'" alt="Gambar"></td>
-    <td>'.$row["nm_produk"].'</td>
-    <td>'.$row["nm_ktg"].'</td>  
-    <td>'.$row["desk"].'</td>
-    <td>'.$formatted_harga.'</td> <!-- Harga dengan format Rp 6.400.000 -->
-    <td>'.$row["stok"].'</td>
+    <td>' . $row["id_produk"] . '</td>
+    <td><img src="produk_img/' . $row["gambar"] . '" alt="Gambar"></td>
+    <td>' . $row["nm_produk"] . '</td>
+    <td>' . $row["nm_ktg"] . '</td>  
+    <td>' . $row["desk"] . '</td>
+    <td>' . $formatted_harga . '</td> <!-- Harga dengan format Rp 6.400.000 -->
+    <td>' . $row["stok"] . '</td>
   </tr>
   </tbody>';
 }

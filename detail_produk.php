@@ -284,12 +284,12 @@ if (isset($_POST['add_to_cart'])) {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="dropdown user wishlist-block hidden-sm hidden-xs">
+                               <div class="dropdown user wishlist-block hidden-sm hidden-xs">
                                     <a class="dropdown-toggle d-flex align-items-center link-to" href="#" id="userDropdown"
                                         role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                         <span class="icon-qty-combine">
                                             <i class="fas fa-user biolife-icon"></i>
-                                            <span class="qty"><?= htmlspecialchars($_SESSION['username']); ?></span>
+                                            <span class="qty"><?= htmlspecialchars($_SESSION['username']);  ?></span>
                                             <!-- Ganti qty jadi username -->
                                         </span>
                                     </a>

@@ -427,11 +427,11 @@ session_start();
                                 <?php
                                 include "admin/koneksi.php"; // koneksi ke database
 
-                                // Query untuk join tb_produk dan tb_ktg, mengambil 8 data acak
+                                // Query untuk join tb_produk dan tb_kategori, mengambil 8 data acak
                                 $query = "
     SELECT p.*, k.nm_ktg 
     FROM tb_produk p 
-    JOIN tb_ktg k ON p.id_ktg = k.id_ktg 
+    JOIN tb_kategori k ON p.id_ktg = k.id_ktg 
     ORDER BY RAND() 
     LIMIT 8
 ";
@@ -456,7 +456,7 @@ session_start();
                                                         <ins><span class="price-amount"><span class="currencySymbol">Rp.</span><?= number_format($row['harga'], 0, ',', '.') ?></span></ins>
                                                     </div>
                                                     <div class="slide-down-box">
-                                                        <p class="message"><?= $row['ket'] ?></p>
+                                                        <p class="message"><?= $row['desk'] ?></p>
                                                         <div class="buttons">
                                                             <a href="detail_produk.php?id=<?= $row['id_produk'] ?>" class="btn add-to-cart-btn">
                                                                 <i class="fa fa-cart-arrow-down" aria-hidden="true"></i>Keranjang

@@ -427,7 +427,7 @@ switch (strtolower($data['nm_ktg'])) {
     case 'ikan':
         echo '<li>Ikan Segar dari Nelayan Lokal</li><li>Tanpa Bahan Pengawet</li>';
         break;
-    case 'bumbu dapur':
+    case 'bumbu masakan':
         echo '<li>Bumbu dapur Alami</li><li>Rempah-rempah Pilihan</li>';
         break;
     case 'frozen food':
@@ -436,18 +436,19 @@ switch (strtolower($data['nm_ktg'])) {
     default:
         echo '<li>100% Buah Lokal</li><li>Manis Alami, Bukan Sintetis</li>';
         break;
-	}
-	?>
-	</ul>
-       </div>
-      </div>
-     </li>
-    <?php } ?>
-   </ul>
-    </div>
-        <div class="biolife-paginations-block">
-    <ul class="panigation-contain">
-        <?php
+	     }
+                                                    ?>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                <?php } ?>
+                            </ul>
+                        </div>
+
+                        <div class="biolife-panigations-block">
+                            <ul class="panigation-contain">
+                                <?php
         // Query string untuk mempertahankan search dan kategori
         $search_query = !empty($search) ? '&s=' . urlencode($search) : '';
         $kategori_query = !empty($kategori) ? '&kategori=' . urlencode($kategori) : '';

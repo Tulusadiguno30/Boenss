@@ -193,6 +193,7 @@
                                         <th scope="col">Deskripsi</th>
                                         <th scope="col">Kategori</th>
                                         <th scope="col">Gambar</th>
+                                         <th scope="col">AKSI</th>
                                     </tr>
                                 </thead>
                                 <tbody>

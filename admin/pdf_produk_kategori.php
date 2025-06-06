@@ -15,21 +15,21 @@ function query($query)
 }
 
 // Ambil ID kategori dari parameter URL dengan validasi
-$id_kategori = isset($_GET['id_kategori']) ? $_GET['id_kategori'] : null;
+$id_ktg = isset($_GET['id_ktg']) ? $_GET['id_ktg'] : null;
 
-if (!$id_kategori) {
-    die("ID Kategori tidak ditemukan.");
+if (!$id_ktg) {
+    die("id_ktg tidak ditemukan.");
 }
 
 // Amankan input dari user
-$id_kategori = mysqli_real_escape_string($koneksi, $id_kategori);
+$id_ktg = mysqli_real_escape_string($koneksi, $id_ktg);
 
 // Query berdasarkan kategori (pastikan pakai tanda kutip karena id_kategori berupa string seperti 'K001')
 $data = query("SELECT tb_produk.id_produk, tb_produk.nm_produk, tb_produk.harga, tb_produk.stok, 
-                      tb_produk.ket, tb_produk.gambar, tb_ktg.nm_ktg
+                      tb_produk.desk, tb_produk.gambar, tb_kategori.nm_ktg
                FROM tb_produk 
-               JOIN tb_ktg ON tb_produk.id_ktg = tb_ktg.id_ktg
-               WHERE tb_produk.id_ktg = '$id_kategori'");
+               JOIN tb_kategori ON tb_produk.id_ktg = tb_kategori.id_ktg
+               WHERE tb_produk.id_ktg = '$id_ktg'");
 
 // Buat instance MPDF
 $mpdf = new \Mpdf\Mpdf();
@@ -83,9 +83,9 @@ $html = '<html>
 <table align="center" cellspacing="0">
 <thead>
 <tr>
-  <th>ID Produk</th>
+  <th>ID_Produk</th>
   <th>Gambar</th>
-  <th>Nama Produk</th>
+  <th>Nm_Produk</th>
   <th>Kategori</th>
   <th>Deskripsi</th>
   <th>Harga</th>
@@ -101,7 +101,7 @@ foreach ($data as $row) {
     <td><img src="produk_img/'. $row["gambar"].'" alt="Gambar"></td>
     <td>'.$row["nm_produk"].'</td>
     <td>'.$row["nm_ktg"].'</td>  
-    <td>'.$row["ket"].'</td>
+    <td>'.$row["desk"].'</td>
     <td>'.$formatted_harga.'</td>
     <td>'.$row["stok"].'</td>
   </tr>

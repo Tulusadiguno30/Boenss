@@ -294,10 +294,9 @@ if (isset($_POST['add_to_cart'])) {
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td class="product-subtotal" data-title="Total">
+                                                     <td class="product-subtotal" data-title="Total">
                                                     <div class="price price-contain">
-                                                        <ins><span class="price-amount"><span
-                                                                    class="currencySymbol">Rp.</span><?= number_format($total_item, 0, ',', '.'); ?></span></ins>
+                                                        <ins><span class="price-amount"><span class="currencySymbol">Rp. </span><?= number_format($total_item, 0, ',', '.'); ?></span></ins>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -338,9 +337,8 @@ if (isset($_POST['add_to_cart'])) {
                                     <span class="stt-price">Rp. <?= number_format($diskon, 0, ',', '.'); ?></span>
                                 </div>
                                 <div class="subtotal-line">
-                                    <b class="att-name">Total Bayar</b>
-                                    <span class="att-price">Rp. <?= number_format($total_bayar,
-                                     0, ',', '.'); ?></span>
+                                    <b class="stt-name">Total Bayar</b>
+                                    <span class="stt-price">Rp. <?= number_format($total_bayar, 0, ',', '.'); ?></span>
                                 </div>
                                 <div class="tax-fee">
                                 </div>

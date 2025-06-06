@@ -66,7 +66,7 @@ $html = '<html>
 <table align="center" cellspacing="0">
 <thead>
 <tr>
-  <th>ID Jual</th>
+  <th>ID_Jual</th>
   <th>Tanggal</th>
   <th>Username</th>
   <th>Total</th>
