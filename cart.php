@@ -264,12 +264,12 @@ if (isset($_POST['add_to_cart'])) {
                                             <?php $total_item = $row['harga'] * $row['qty']; ?>
                                             <tr class="cart_item">
                                                 <td class="product-thumbnail" data-title="Product Name">
-                                                    <a class="prod-thumb" href="#">
+                                                    <a class="prd-thumb" href="#">
                                                         <figure><img width="113" height="113"
                                                                 src="admin/produk_img/<?= $row["gambar"]; ?>"
                                                                 alt="<?= $row["nm_produk"]; ?>"></figure>
                                                     </a>
-                                                    <a class="prod-name" href="#"><?= $row['nm_produk']; ?></a>
+                                                    <a class="prd-name" href="#"><?= $row['nm_produk']; ?></a>
                                                     <div class="action">
                                                         <a href="hapus_item.php?id=<?= $row['id_pesanan']; ?>"><i
                                                                 class="fa fa-trash-o" aria-hidden="true"></i></a>
